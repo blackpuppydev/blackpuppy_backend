@@ -1,31 +1,50 @@
 //Create by Nattawut.C 11/11/24
-const jwt = require("jsonwebtoken");
+// const jwt = require("jsonwebtoken");
 
-const verifyToken = (req, res, next) => {
-  //get token from header
-  const token = req.headers["authorization"]?.split(" ")[1]; // Assume token is passed as "Bearer <token>"
-  if (!token)
-    return res
-      .status(401)
-      .json({ message: "Access Denied. No token provided." });
+// const verifyToken = (req, res, next) => {
+//   //get token from header
+//   const token = req.headers["authorization"]?.split(" ")[1]; // Assume token is passed as "Bearer <token>"
+//   if (!token)
+//     return res
+//       .status(401)
+//       .json({ message: "Access Denied. No token provided." });
+
+//   try {
+//     //recheck decode token
+//     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+//       if (err) {
+//         return res.sendStatus(403).json({ message: "Invalid token." });
+//       }
+//       req.user = decoded;
+//       next();
+//     });
+//   } catch (err) {
+//     if (err.name === "TokenExpiredError") {
+//       //token expired
+//       return res
+//         .status(401)
+//         .json({ message: "Token expired. Please log in again." });
+//     }
+//     //Invalid token.
+//     return res.status(403).json({ message: "Invalid token." });
+//   }
+// };
+
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+require("dotenv").config({ path: `.env.${process.env.NODE_ENV}` });
+
+const verifySupabaseToken = (req, res, next) => {
+  const token = req.headers["authorization"]?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "No token provided." });
+  }
 
   try {
-    //recheck decode token
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-      if (err) {
-        return res.sendStatus(403).json({ message: "Invalid token." });
-      }
-      req.user = decoded;
-      next();
-    });
+    const decoded = jwt.verify(token, process.env.SUPABASE_JWT_SECRET);
+    req.user = decoded;
+    next();
   } catch (err) {
-    if (err.name === "TokenExpiredError") {
-      //token expired
-      return res
-        .status(401)
-        .json({ message: "Token expired. Please log in again." });
-    }
-    //Invalid token.
     return res.status(403).json({ message: "Invalid token." });
   }
 };
@@ -42,4 +61,4 @@ const allowRoles = (...roles) => {
   };
 };
 
-module.exports = { verifyToken, allowRoles };
+module.exports = { verifySupabaseToken, allowRoles };
