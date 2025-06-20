@@ -59,7 +59,25 @@ exports.getDashboard = async (req, res) => {
       count_job,
       type_all,
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Internal Server Error" });
+  }
+};
 
+exports.getDisplay = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("customer")
+      .select("id, name, price, place, type, date, province")
+      .order("date", { ascending: false });
+
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    res.json({ data });
+
+    
   } catch (error) {
     res.status(500).json({ message: error.message || "Internal Server Error" });
   }
