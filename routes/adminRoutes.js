@@ -24,4 +24,26 @@ router.get(
   adminControllers.getCustomerCountByProvince
 );
 
+router.get(
+  "/display-next",
+  verifySupabaseToken,
+  adminControllers.getDisplayNext
+);
+router.post(
+  "/add-customer-next",
+  verifySupabaseToken,
+  adminControllers.addCustomerNext
+);
+router.put(
+  "/edit-customer-next/:id",
+  verifySupabaseToken,
+  adminControllers.updateCustomerNext
+);
+
+router.delete(
+  "/delete-customer-next/:id",
+  verifySupabaseToken,
+  adminControllers.deleteCustomerNext
+);
+
 module.exports = router;
