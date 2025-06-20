@@ -7,7 +7,7 @@ exports.getDashboard = async (req, res) => {
   try {
     const { data: customers, error } = await supabase
       .from("customer")
-      .select("price, type");
+      .select("price, type , date");
 
     if (error) {
       throw new Error(error.message);
@@ -25,6 +25,8 @@ exports.getDashboard = async (req, res) => {
       event: 0,
       other: 0,
     };
+
+    const incomeByYearMap = {};
 
     for (const customer of customers) {
       // รวม income
@@ -50,7 +52,24 @@ exports.getDashboard = async (req, res) => {
         default:
           break;
       }
+
+      if (customer.date) {
+        const price = Number(customer.price || 0);
+        const year = new Date(customer.date).getFullYear();
+
+        if (!incomeByYearMap[year]) {
+          incomeByYearMap[year] = 0;
+        }
+        incomeByYearMap[year] += price;
+      }
     }
+
+    const incomeByYear = Object.keys(incomeByYearMap)
+      .sort()
+      .map((year) => ({
+        year,
+        total: incomeByYearMap[year],
+      }));
 
     // ส่ง response
     res.json({
@@ -58,6 +77,7 @@ exports.getDashboard = async (req, res) => {
       income,
       count_job,
       type_all,
+      incomeByYear,
     });
   } catch (error) {
     res.status(500).json({ message: error.message || "Internal Server Error" });
@@ -177,5 +197,38 @@ exports.deleteCustomer = async (req, res) => {
   } catch (err) {
     console.error("Delete error:", err);
     res.status(500).json({ message: err.message || "Internal Server Error" });
+  }
+};
+
+exports.getCustomerCountByProvince = async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("customer").select("province");
+
+    if (error) throw new Error(error.message);
+
+    const provinceCounts = {};
+
+    for (const record of data) {
+      const province = record.province || "ไม่ระบุ";
+      if (!provinceCounts[province]) {
+        provinceCounts[province] = 0;
+      }
+      provinceCounts[province]++;
+    }
+
+    // แปลงเป็น array เพื่อส่งกลับ
+    const result = Object.entries(provinceCounts).map(([province, count]) => ({
+      province,
+      count,
+    }));
+
+    res.json({
+      message: "User count by province",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message || "Internal Server Error",
+    });
   }
 };

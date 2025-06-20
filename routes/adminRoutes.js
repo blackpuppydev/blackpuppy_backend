@@ -18,4 +18,10 @@ router.delete(
   adminControllers.deleteCustomer
 );
 
+router.get(
+  "/customer-count-by-province",
+  verifySupabaseToken,
+  adminControllers.getCustomerCountByProvince
+);
+
 module.exports = router;
