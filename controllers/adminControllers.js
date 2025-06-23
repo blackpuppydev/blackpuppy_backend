@@ -350,3 +350,70 @@ exports.deleteCustomerNext = async (req, res) => {
     res.status(500).json({ message: err.message || "Internal Server Error" });
   }
 };
+
+
+exports.getProfiles = async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("profiles").select("id, full_name, role");
+    if (error) throw error;
+    res.json({ data });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Internal Server Error" });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  const { id } = req.params;
+  const { full_name, role } = req.body;
+
+  try {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ full_name, role })
+      .eq("id", id);
+
+    if (error) throw error;
+    res.json({ message: "Profile updated successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Internal Server Error" });
+  }
+};
+
+exports.getJobTypes = async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("job_types").select("*");
+    if (error) throw error;
+    res.json({ data });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Internal Server Error" });
+  }
+};
+
+exports.addJobType = async (req, res) => {
+  const { name } = req.body;
+
+  try {
+    const { error } = await supabase.from("job_types").insert([{ name }]);
+    if (error) throw error;
+    res.json({ message: "Job type added successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Internal Server Error" });
+  }
+};
+
+
+exports.deleteJobType = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const { error } = await supabase.from("job_types").delete().eq("id", id);
+    if (error) throw error;
+    res.json({ message: "Job type deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Internal Server Error" });
+  }
+};
+
+
+
+

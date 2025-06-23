@@ -46,4 +46,12 @@ router.delete(
   adminControllers.deleteCustomerNext
 );
 
+
+router.get("/profiles", adminControllers.getProfiles);
+router.put("/profiles/:id", adminControllers.updateProfile);
+
+router.get("/job-types", adminControllers.getJobTypes);
+router.post("/job-types", adminControllers.addJobType);
+router.delete("/job-types/:id", adminControllers.deleteJobType);
+
 module.exports = router;
